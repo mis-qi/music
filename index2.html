@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+
+
+        *{
+            padding: 0;
+            margin: 0;
+        }
+        body{
+            background-color: palevioletred;
+        }
+        ul{
+            list-style: none;
+        }
+        .box{
+            width: 500px;
+            padding: 20px;
+            border: 1px solid #000;
+            margin: 50px auto;
+            font-size: 13px;
+        }
+        .ctr-box{
+            width: 100%;
+            /*border: 1px solid #000;*/
+            display: flex;
+        }
+        .ctr-pic{
+            width: 150px;
+
+        }
+        .ctr-pic img{
+            width: 100%;
+            border-radius: 50%;
+        }
+        .ctr-body{
+            width: 350px;
+            /*border: 1px solid #000;*/
+            height: 150px;
+        }
+
+
+        .bar{
+            width: 300px;
+            /*height: 2px;*/
+            /*background-color: #000;*/
+            position: relative;
+
+            margin: 15px ;
+        }
+        .total{
+            width: 200px;
+            height: 4px;
+            background-color: red;
+            position: absolute;
+            top: 0;
+            left: 0;
+
+        }
+        .now{
+
+            width: 0px;
+            height: 4px;
+            background-color:blue ;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .ctr-bar{
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: gray;
+            position: absolute;
+            top: -3px;
+            left: 0;
+        }
+        .singer{
+            margin: 20px 0 0 30px;
+        }
+        .time{
+            position: absolute;
+            top: -8px;
+            right: 0;
+
+        }
+        .ctr-btn{
+            width: 200px;
+            display: flex;
+            align-items: center;
+            margin: 35px 20px 20px 20px;
+            justify-content: space-around;
+        }
+        .ctr-btn div{
+            background: url("player.png")no-repeat;
+        }
+        .ctr-btn .prev{
+            width: 20px;
+            height: 20px;
+            background-position-y: -30px;
+        }
+        .ctr-btn .start{
+            width: 20px;
+            height: 30px;
+            /*margin: 0 10px;*/
+
+        }
+        .ctr-btn .next{
+            width: 20px;
+            height: 20px;
+            background-position-y: -52px;
+        }
+        .ctr-btn .volume{
+            width: 30px;
+            height: 25px;
+            background-position-y: -141px;
+        }
+        .ctr-btn .mode{
+            width: 28px;
+            height: 23px;
+            background-position-y: -206px;
+        }
+        .bar-box{
+            width: 20px;
+            height: 2px;
+            background-color: green;
+
+        }
+        .list-box{
+            width: 100%;
+            padding: 30px;
+            box-sizing: border-box;
+            /*border: 1px solid #000;*/
+        }
+        .list-box li{
+            height: 30px;
+            line-height: 30px;
+            border-bottom: 1px dashed #666;
+            justify-content: space-around;
+            display: flex;
+        }
+        .bar-box{
+            width: 200px;
+            height: 4px;
+            background-color: green;
+
+        }
+        .active{
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+<input type="text" id="searchTxt">
+<button id="searchBtn">搜索</button>
+<!--大盒子-->
+<div class="box">
+    <!--控件组件盒子-->
+    <div class="ctr-box">
+        <!--专辑封面-->
+        <div class="ctr-pic">
+            <img src="123.png" alt="">
+
+        </div>
+        <!--控制组件-->
+        <div class="ctr-body">
+            <!--歌曲名-->
+            <div class="singer">
+              <span></span>
+            </div>
+            <!--控制条-->
+            <div class="bar">
+                <div class="bar-box">
+                    <div class="total"></div>
+                    <div class="now"></div>
+                    <div class="ctr-bar"></div>
+                </div>
+                <p class="time">
+                    <span class="current">00:00</span>
+                    /
+                    <span class="totalTime">00:00</span>
+                </p>
+            </div>
+            <!--控制按钮-->
+            <div class="ctr-btn">
+                <div class="prev"></div>
+                <div class="start"></div>
+                <div class="next"></div>
+                <div class="volume"></div>
+                <div class="mode"></div>
+            </div>
+
+        </div>
+    </div>
+    <!--音乐列表盒子-->
+    <div class="list-box">
+        <ul>
+            <li class="active"></li>
+            <!--<li><span>夜曲</span>张杰</li>-->
+            <!--<li><span>夜曲</span>张杰</li>-->
+            <!--<li><span>夜曲</span>张杰</li>-->
+        </ul>
+
+    </div>
+</div>
+
+<audio ></audio>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script>
+    //用来保存歌曲数据我们将data模拟成后台传给我们的数据
+    //后台一般情况下会传给我们json 我们就模拟一个json数据
+    // 一首歌需要哪些数据
+    // 歌名 歌手名 专辑封面 歌曲播放地址
+    var data=[];
+    //获取元素
+    //
+    var audio=document.querySelector('audio');
+    var pic =document.querySelector('.ctr-pic img');
+    var singer = document.querySelector('.singer span');
+    var strat = document.querySelector('.ctr-btn .start');
+    var prev = document.querySelector('.ctr-btn .prev');
+    var next = document.querySelector('.ctr-btn .next');
+    var currentTime = document.querySelector('.time .current');
+    var totalTime = document.querySelector('.time .totalTime');
+    var barBox = document.querySelector('.bar-box');
+    var ctrBar = document.querySelector('.ctr-bar');
+    var now = document.querySelector('.now');
+    var modeBtn = document.querySelector('.mode');
+    var listBox = document.querySelector('.list-box ul');
+    var searchTxt = document.querySelector('#searchTxt');
+    var searchBtn = document.querySelector('#searchBtn');
+    searchBtn.addEventListener('click',function () {
+        //搜素音乐列表
+        // 进行ajax请求
+        $(listBox ).on('click','li' ,function () {
+            index=$(this).index();
+            audio.src='http://music.163.com/song/media/outer/url?id='+data[index].id+'.mp3 ';
+            init();
+            play();
+        });
+        $.ajax({
+           url:'https://api.imjad.cn/cloudmusic/',
+           data:{
+           type:'search',
+           s:searchTxt .value
+           },
+           type:'get',
+           success:function (data1) {
+               // console.log(data.result.songs);
+               data = data1.result.songs;
+               var str='';
+               for(var i=0;i < data.length;i++){
+                   str+='<li><span>'+data[i].name+'</span><span>';
+                   for(var j=0;j<data[i].ar.length;j++){
+                       str+=data[i].ar[j].name+'  ';
+                   }
+                        str+='</span></li>'
+               }
+               listBox.innerHTML=str;
+               var lis =document .querySelectorAll('li');
+               // lis是数组
+               // lis[0].className='active';
+           },
+           error:function (err) {
+               console.log(err)
+           }
+       })
+    });
+
+    //console.log(str);
+    //标识当前第几首歌
+    var index= 0;
+    // 旋转角度
+    var rotateDeg = 0;
+    //保存定时器
+    var timer=null;
+    //获取当前播放模式
+    //标识当前播放模式，1，代表顺序 2代表单曲 3 代表随机
+    var  mode=1;
+    //b保存图片的positionY的值
+    var modeArr=[-206,-233,-73];
+    modeBtn.addEventListener('click',function () {
+        mode=++mode >modeArr.length-1 ? 0:mode;
+        console.log(mode);
+        modeBtn.style.backgroundPositionY=modeArr[mode]+'px';
+
+    });
+    for(var i=0;i<data.length;i++){
+        lis[i].index=i;
+        lis[i].addEventListener('click',function () {
+            // 先知道我点的那一个li
+
+            index=this.index;
+            init();
+            play();
+        });
+    }
+    //创建一个init方法
+    function init() {
+        // 初始化专辑封面，歌手歌曲名，播放路径，
+        rotateDeg = 0;
+        //pic.src = data[index].pic;
+        //audio.src = data[index].url;
+       singer.innerHTML = data[index].song + '---'+data[index].singer;
+       var strSong ='';
+        for(var j=0;j<data[index].ar.length;j++){
+            strSong+=data[index].ar[j].name+'  ';
+        };
+        singer.innerHTML =data[index].name+'-------'+strSong;
+        //切换列表选中项
+        // for(var i=0;i<data.length;i++){
+        //     lis[i].className='';
+        // }
+        // lis[index].className='active';
+    }
+   // init();
+
+    //播放
+    function play(){
+        pic.src=data[index].al.picUrl;
+        //播放音乐
+        audio.play();
+        // console.log(audio.paused);
+        //播放按钮变成暂停
+        strat.style.backgroundPositionX = -30 + 'px';
+        //专辑封面旋转
+        //在开启一个新的定时器之前，先清掉一个上一个定时器
+        clearInterval(timer);//无效
+        timer =  setInterval(function () {
+            rotateDeg++;
+            pic.style.transform = 'rotate(' + rotateDeg + 'deg)'
+        }, 30);
+
+    }
+
+    //播放
+    //第一次点击播放，第二次点击暂停
+    //自动播放
+
+    strat .addEventListener('click',function () {
+//audio.paused为true的时候是暂停的
+
+        if (audio.paused) {
+            play();
+        }else {
+            //暂停音乐
+            audio .pause();
+            strat.style.backgroundPositionX = 0+ 'px';
+            // 清楚定时器
+            clearInterval(timer);
+        }
+    });
+    //上一曲
+    prev.addEventListener('click',function () {
+        //三元运算符
+        // index--;
+        index=--index< 0 ? data.length-1:index
+        // index--;
+        // if(index<0){
+        //     index=data.length-1;
+        // }
+        init();
+        play();
+    });
+    //下一曲
+    next.addEventListener('click',function () {
+        //三元运算符
+        // index--;
+        index=++index>data.length-1 ? 0:index
+        // index--;
+        // if(index<0){
+        //     index=data.length-1;
+        // }
+        init();
+        play();
+    });
+    //NAA--not a number
+    //准备时间
+    //canplay 当音频文件准备完成后，触发canplay事件
+    audio.addEventListener('canplay',function () {
+        // console.log('我准备好了');
+        // console.log(audio.duration/60);
+        //需要将音乐总时长转换成分钟和秒钟数
+        var min =parseInt(audio.duration/60);
+        var se= parseInt(audio.duration % 60);
+        totalTime.innerHTML=formatTime(min)+':'+formatTime(se);
+        //console.log(min)
+        //  console.log(se)
+        audio.addEventListener('timeupdate',function () {
+            //console.log(audio.currentTime);
+            var currentmin =parseInt(audio.currentTime/60);
+            var currentse= parseInt(audio.currentTime % 60);
+            currentTime.innerHTML=formatTime(currentmin)+':'+formatTime(currentse);
+            //e.offsetX/barBox.clientWidth;
+//console.log(barBox.clientWidth);
+            // console.log(e);
+            var left=audio.currentTime/audio.duration*barBox.clientWidth;
+            ctrBar.style.left=left+'px';
+            now.style.width=left+'px';
+
+            if(audio.ended){
+                switch (mode) {
+                    case 0:
+                        //三元运算符
+                        index=++index >data.length-1?0:index;
+                        init();
+                        play();
+                        console.log('音乐播放完了')
+                        break;
+                    case 1:
+                        init();
+                        play();
+                        break;
+                    case 2:
+                        //递归算法
+                    function getRandom() {
+                        var randomNum=Math.floor(Math.random()*data.length);
+                        if(randomNum===index){
+                            randomNum=getRandom();
+
+                        }
+                        return randomNum;
+                    }
+                        index=getRandom();
+
+                        init();
+                        play();
+//console.log(randomNum);
+                        break;
+                }
+
+
+
+            }
+        });
+    });
+    barBox .addEventListener('click',function (e) {
+        //找到鼠标的位置
+        //鼠标点击的对象的相对位置
+        //挡鼠标点击的位置/总宽度*音乐总时长=当前音乐需要播放的位置
+        //console .log(e.offsetX);
+        //console .log(e.offsetY);
+        // console.log(barBox.clientWidth);
+        audio .currentTime=e.offsetX/barBox .clientWidth*audio.duration;
+
+    });
+    //格式化时间格式
+    function  formatTime(time) {
+        return time > 9 ? time :'0'+time;
+    }
+
+    window.addEventListener('keydown',function (e) {
+// 检测按下了那个键
+        console.log(e.keyCode);
+
+
+    });
+</script>
+
+</body>
+</html>
